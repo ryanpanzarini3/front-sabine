@@ -15,7 +15,7 @@ import Notifications from "./pages/Notifications";
 export default function App() {
   return (
     <AppProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/front-sabine">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<Layout />}>
