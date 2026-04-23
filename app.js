@@ -1,6 +1,27 @@
 
 class App {
   constructor() {
+    this.COLORS = {
+      priority: {
+        'crítica': '#991b1b',
+        'alta': '#dc2626',
+        'média': '#f59e0b',
+        'baixa': '#10b981'
+      },
+      status: {
+        'aberto': '#3b82f6',
+        'em_andamento': '#f59e0b',
+        'resolvido': '#10b981',
+        'fechado': '#6b7280',
+        'aguardando': '#8b5cf6'
+      },
+      sla: {
+        'ok': '#10b981',
+        'alerta': '#f59e0b',
+        'violado': '#dc2626'
+      }
+    };
+
     this.tickets = [...initialTickets];
     this.notifications = [...initialNotifications];
     this.users = users;
@@ -8,7 +29,6 @@ class App {
     this.departments = departments;
     this.slaConfigs = slaConfigs;
     this.currentUser = currentUser;
-
 
     this.currentPage = 'dashboard';
     this.currentTicket = null;
@@ -259,15 +279,7 @@ class App {
 
     const labels = Object.keys(priorities);
     const data = Object.values(priorities);
-
-    const colorMap = {
-      'baixa': '#10b981',
-      'média': '#f59e0b',
-      'alta': '#dc2626',
-      'crítica': '#991b1b'
-    };
-
-    const colors = labels.map(label => colorMap[label] || '#8b5cf6');
+    const colors = labels.map(label => this.COLORS.priority[label] || '#8b5cf6');
 
     this.priorityChartInstance = new Chart(ctx, {
       type: 'doughnut',
@@ -313,16 +325,7 @@ class App {
 
     const labels = Object.keys(statuses);
     const data = Object.values(statuses);
-
-    const colorMap = {
-      'aberto': '#3b82f6',
-      'em_andamento': '#f59e0b',
-      'resolvido': '#10b981',
-      'fechado': '#6b7280',
-      'aguardando': '#8b5cf6'
-    };
-
-    const colors = labels.map(label => colorMap[label] || '#6b7280');
+    const colors = labels.map(label => this.COLORS.status[label] || '#6b7280');
 
     this.statusChartInstance = new Chart(ctx, {
       type: 'bar',
@@ -447,7 +450,7 @@ class App {
         labels: ['No Prazo', 'Atenção', 'Violado'],
         datasets: [{
           data: [slaStatuses.ok, slaStatuses.alerta, slaStatuses.violado],
-          backgroundColor: ['#10b981', '#f59e0b', '#dc2626'],
+          backgroundColor: [this.COLORS.sla.ok, this.COLORS.sla.alerta, this.COLORS.sla.violado],
           borderColor: '#fff',
           borderWidth: 2
         }]
