@@ -28,7 +28,12 @@ class App {
     this.categories = categories;
     this.departments = departments;
     this.slaConfigs = slaConfigs;
-    this.currentUser = currentUser;
+    this.currentUser = null;
+
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      this.currentUser = JSON.parse(savedUser);
+    }
 
     this.currentPage = 'dashboard';
     this.currentTicket = null;
@@ -48,7 +53,39 @@ class App {
     this.slaChartInstance = null;
 
     this.setupEventListeners();
-    this.render();
+    this.renderInitial();
+  }
+
+  renderInitial() {
+    if (this.currentUser) {
+      document.getElementById('auth-container')?.classList.add('hidden');
+      document.getElementById('app')?.classList.remove('hidden');
+      this.render();
+    } else {
+      document.getElementById('auth-container')?.classList.remove('hidden');
+      document.getElementById('app')?.classList.add('hidden');
+      this.setupAuthListeners();
+    }
+  }
+
+  setupAuthListeners() {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const modalClose = document.querySelector('.modal-close');
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleLogin();
+      });
+    }
+
+    if (registerForm) {
+      registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleRegister();
+      });
+    }
   }
 
   setupEventListeners() {
@@ -56,10 +93,16 @@ class App {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const page = link.dataset.page;
-        this.navigateTo(page);
-        this.closeSidebar();
+        if (this.canAccess(page)) {
+          this.navigateTo(page);
+          this.closeSidebar();
+        } else {
+          alert('Você não tem permissão para acessar esta seção!');
+        }
       });
     });
+
+    this.updateNavLinkVisibility();
 
    
     const menuToggle = document.getElementById('menu-toggle');
@@ -182,6 +225,18 @@ class App {
         this.renderTicketDetail();
       }
     });
+
+    document.getElementById('btn-logout')?.addEventListener('click', () => {
+      this.handleLogout();
+    });
+
+    document.getElementById('bell-btn')?.addEventListener('click', () => {
+      this.navigateTo('notifications');
+    });
+
+    if (this.currentUser) {
+      document.getElementById('user-name').textContent = `👤 ${this.currentUser.name}`;
+    }
   }
 
   navigateTo(page) {
@@ -200,6 +255,7 @@ class App {
 
   render() {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    this.updateNavLinkVisibility();
 
     switch (this.currentPage) {
       case 'dashboard':
@@ -1026,6 +1082,113 @@ class App {
     if (window.innerWidth <= 768) {
       document.getElementById('sidebar')?.classList.remove('open');
     }
+  }
+
+  switchAuthPage(page) {
+    document.querySelectorAll('.auth-page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`${page}-page`)?.classList.add('active');
+  }
+
+  handleLogin() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    const user = this.users.find(u => u.email === email && u.password === password);
+
+    if (user) {
+      this.currentUser = user;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      document.getElementById('app')?.classList.remove('hidden');
+      document.getElementById('auth-container')?.classList.add('hidden');
+      document.getElementById('login-form').reset();
+      this.setupEventListeners();
+      this.updateNavLinkVisibility();
+      this.render();
+      this.addNotificationAlert('Bem-vindo!', `Olá ${user.name}`, 'info');
+    } else {
+      alert('Email ou senha incorretos!');
+    }
+  }
+
+  handleRegister() {
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const role = document.getElementById('register-role').value;
+
+    if (this.users.find(u => u.email === email)) {
+      alert('Email já cadastrado!');
+      return;
+    }
+
+    const newUser = {
+      id: `user-${Date.now()}`,
+      name: name,
+      email: email,
+      password: password,
+      role: role,
+      department: role === 'cliente' ? 'Externo' : 'Suporte Técnico',
+      status: 'active'
+    };
+
+    this.users.push(newUser);
+    this.currentUser = newUser;
+    localStorage.setItem('currentUser', JSON.stringify(newUser));
+    document.getElementById('app')?.classList.remove('hidden');
+    document.getElementById('auth-container')?.classList.add('hidden');
+    document.getElementById('register-form').reset();
+    this.setupEventListeners();
+    this.updateNavLinkVisibility();
+    this.render();
+    this.addNotificationAlert('Conta criada!', `Bem-vindo ${name}!`, 'success');
+  }
+
+  handleLogout() {
+    this.currentUser = null;
+    localStorage.removeItem('currentUser');
+    document.getElementById('app')?.classList.add('hidden');
+    document.getElementById('auth-container')?.classList.remove('hidden');
+    this.switchAuthPage('login');
+    document.getElementById('login-form').reset();
+    document.getElementById('register-form').reset();
+    this.setupAuthListeners();
+  }
+
+  updateNavLinkVisibility() {
+    document.querySelectorAll('.nav-link').forEach(link => {
+      const page = link.dataset.page;
+      if (this.canAccess(page)) {
+        link.classList.remove('hidden');
+      } else {
+        link.classList.add('hidden');
+      }
+    });
+  }
+
+  canAccess(resource) {
+    if (!this.currentUser) return false;
+
+    const permissions = {
+      admin: ['dashboard', 'tickets', 'users', 'categories', 'sla', 'departments', 'notifications'],
+      atendente: ['dashboard', 'tickets', 'categories', 'sla', 'notifications'],
+      cliente: ['dashboard', 'tickets', 'notifications']
+    };
+
+    return permissions[this.currentUser.role]?.includes(resource) || false;
+  }
+
+  addNotificationAlert(title, message, type = 'info') {
+    const notification = {
+      id: `notif-${Date.now()}`,
+      title: title,
+      message: message,
+      type: type,
+      created_at: new Date().toISOString(),
+      read: false,
+      ticketId: null
+    };
+    this.notifications.unshift(notification);
+    this.updateUnreadBadge();
   }
 }
 
