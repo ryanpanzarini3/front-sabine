@@ -43,6 +43,8 @@ class App {
         e.preventDefault();
         const page = link.dataset.page;
         this.navigateTo(page);
+        // Close sidebar on mobile after navigation
+        this.closeSidebar();
       });
     });
 
@@ -54,6 +56,20 @@ class App {
         sidebar.classList.toggle('open');
       });
     }
+
+    // Close sidebar when clicking outside (mobile)
+    document.addEventListener('click', (e) => {
+      const sidebar = document.getElementById('sidebar');
+      const menuToggle = document.getElementById('menu-toggle');
+      
+      if (window.innerWidth <= 768) {
+        if (sidebar.classList.contains('open') && 
+            !sidebar.contains(e.target) && 
+            !menuToggle.contains(e.target)) {
+          sidebar.classList.remove('open');
+        }
+      }
+    });
 
     // Dashboard
     document.getElementById('btn-new-ticket')?.addEventListener('click', () => {
@@ -853,6 +869,12 @@ class App {
       badge.classList.remove('hidden');
     } else {
       badge.classList.add('hidden');
+    }
+  }
+
+  closeSidebar() {
+    if (window.innerWidth <= 768) {
+      document.getElementById('sidebar')?.classList.remove('open');
     }
   }
 }
