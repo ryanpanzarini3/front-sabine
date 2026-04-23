@@ -1,13 +1,329 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sabine - Ticket Management</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sabine - Ticket Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h2>🎫 HelpDesk</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" data-page="dashboard" class="nav-link active">
+          <span>📊</span> Dashboard
+        </a>
+        <a href="#" data-page="tickets" class="nav-link">
+          <span>🎫</span> Chamados
+        </a>
+        <a href="#" data-page="users" class="nav-link">
+          <span>👥</span> Usuários
+        </a>
+        <a href="#" data-page="categories" class="nav-link">
+          <span>🏷️</span> Categorias
+        </a>
+        <a href="#" data-page="sla" class="nav-link">
+          <span>⏱️</span> SLA
+        </a>
+        <a href="#" data-page="departments" class="nav-link">
+          <span>🏢</span> Departamentos
+        </a>
+        <a href="#" data-page="notifications" class="nav-link">
+          <span>🔔</span> Notificações
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-container">
+      <!-- Header -->
+      <header class="header">
+        <button id="menu-toggle" class="menu-toggle">☰</button>
+        <div class="header-center">
+          <input type="text" id="global-search" placeholder="🔍 Buscar..." class="search-input">
+        </div>
+        <div class="header-right">
+          <div class="notification-bell">
+            <button id="bell-btn">🔔</button>
+            <span id="unread-badge" class="badge">0</span>
+          </div>
+          <div class="user-profile">
+            <span>👤 Ryan Panzarini</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-content">
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="page active">
+          <h1>Dashboard</h1>
+          
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <p class="metric-label">Chamados Abertos</p>
+              <h2 id="metric-open" class="metric-value">0</h2>
+            </div>
+            <div class="metric-card">
+              <p class="metric-label">Em Andamento</p>
+              <h2 id="metric-progress" class="metric-value">0</h2>
+            </div>
+            <div class="metric-card">
+              <p class="metric-label">Resolvidos/Fechados</p>
+              <h2 id="metric-closed" class="metric-value">0</h2>
+            </div>
+            <div class="metric-card metric-danger">
+              <p class="metric-label">SLA Violado</p>
+              <h2 id="metric-sla-violated" class="metric-value">0</h2>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="card">
+              <h3>Por Prioridade</h3>
+              <canvas id="priority-chart"></canvas>
+            </div>
+            <div class="card">
+              <h3>Por Status</h3>
+              <canvas id="status-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Últimos Chamados</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Assunto</th>
+                  <th>Cliente</th>
+                  <th>Prioridade</th>
+                  <th>Status</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody id="latest-tickets"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TICKETS PAGE -->
+        <div id="tickets-page" class="page">
+          <div class="page-header">
+            <h1>Chamados</h1>
+            <button id="btn-new-ticket" class="btn btn-primary">+ Novo Chamado</button>
+          </div>
+
+          <div class="card">
+            <div class="filters">
+              <input type="text" id="filter-search" placeholder="🔍 Buscar por ID ou Assunto..." class="filter-input">
+              <select id="filter-status" class="filter-select">
+                <option value="">Status: Todos</option>
+                <option value="aberto">Aberto</option>
+                <option value="em_andamento">Em Andamento</option>
+                <option value="resolvido">Resolvido</option>
+                <option value="fechado">Fechado</option>
+              </select>
+              <select id="filter-priority" class="filter-select">
+                <option value="">Prioridade: Todos</option>
+                <option value="critica">Crítica</option>
+                <option value="alta">Alta</option>
+                <option value="media">Média</option>
+                <option value="baixa">Baixa</option>
+              </select>
+              <select id="filter-category" class="filter-select">
+                <option value="">Categoria: Todos</option>
+                <option value="hardware">Hardware</option>
+                <option value="software">Software</option>
+                <option value="rede">Rede</option>
+                <option value="acesso">Acesso</option>
+                <option value="outros">Outros</option>
+              </select>
+              <button id="btn-reset-filters" class="btn btn-secondary">Limpar Filtros</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <table class="table" id="tickets-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Assunto</th>
+                  <th>Cliente</th>
+                  <th>Atendente</th>
+                  <th>Prioridade</th>
+                  <th>Status</th>
+                  <th>Abertura</th>
+                </tr>
+              </thead>
+              <tbody id="tickets-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button id="btn-prev-page" class="btn btn-secondary">◀ Anterior</button>
+            <div id="page-numbers" class="page-numbers"></div>
+            <button id="btn-next-page" class="btn btn-secondary">Próxima ▶</button>
+          </div>
+        </div>
+
+        <!-- TICKET DETAIL PAGE -->
+        <div id="ticket-detail-page" class="page">
+          <div class="detail-header">
+            <button id="btn-back" class="btn btn-secondary">← Voltar</button>
+          </div>
+
+          <div class="detail-grid">
+            <!-- LEFT: Info -->
+            <div class="detail-left">
+              <div class="card">
+                <h3>Informações</h3>
+                <div id="ticket-info"></div>
+              </div>
+              <div class="card">
+                <h3>Descrição</h3>
+                <p id="ticket-description"></p>
+              </div>
+            </div>
+
+            <!-- CENTER: Messages -->
+            <div class="detail-center">
+              <div class="card messages-box">
+                <h3>Histórico</h3>
+                <div id="messages-list" class="messages-list"></div>
+              </div>
+              <div class="card">
+                <textarea id="new-message" placeholder="Escrever mensagem..." rows="4"></textarea>
+                <div class="message-controls">
+                  <select id="message-type">
+                    <option value="public">👤 Público</option>
+                    <option value="internal">🔒 Interno</option>
+                  </select>
+                  <button id="btn-send-message" class="btn btn-primary">Enviar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Actions -->
+            <div class="detail-right">
+              <div class="card">
+                <h3>SLA Status</h3>
+                <div id="sla-info"></div>
+              </div>
+              <div class="card">
+                <h3>Alterar Status</h3>
+                <div id="status-buttons"></div>
+              </div>
+              <div class="card">
+                <h3>Alterar Prioridade</h3>
+                <select id="priority-select"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- USERS PAGE -->
+        <div id="users-page" class="page">
+          <div class="page-header">
+            <h1>Usuários</h1>
+            <button id="btn-new-user" class="btn btn-primary">+ Novo Usuário</button>
+          </div>
+
+          <div class="card">
+            <table class="table" id="users-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Departamento</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CATEGORIES PAGE -->
+        <div id="categories-page" class="page">
+          <div class="page-header">
+            <h1>Categorias</h1>
+            <button id="btn-new-category" class="btn btn-primary">+ Nova Categoria</button>
+          </div>
+
+          <div class="card">
+            <table class="table" id="categories-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>SLA</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="categories-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SLA PAGE -->
+        <div id="sla-page" class="page">
+          <h1>Configurações de SLA</h1>
+
+          <div class="sla-grid" id="sla-list"></div>
+        </div>
+
+        <!-- DEPARTMENTS PAGE -->
+        <div id="departments-page" class="page">
+          <div class="page-header">
+            <h1>Departamentos</h1>
+            <button id="btn-new-department" class="btn btn-primary">+ Novo Departamento</button>
+          </div>
+
+          <div class="card">
+            <table class="table" id="departments-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Gerente</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="departments-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS PAGE -->
+        <div id="notifications-page" class="page">
+          <h1>Notificações</h1>
+
+          <div class="notification-controls">
+            <button id="btn-mark-all-read" class="btn btn-secondary">Marcar Todos como Lido</button>
+          </div>
+
+          <div id="notifications-list" class="notifications-list"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal for forms -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="mockData.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>
