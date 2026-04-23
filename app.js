@@ -669,11 +669,21 @@ class App {
       </button>
     `).join('');
     document.getElementById('status-buttons').innerHTML = statusHTML;
-    const prioritySelect = document.getElementById('priority-select');
-    const priorities = ['critica', 'alta', 'media', 'baixa'];
-    prioritySelect.innerHTML = priorities.map(p => `
-      <option value="${p}" ${t.priority === p ? 'selected' : ''}>${p.charAt(0).toUpperCase() + p.slice(1)}</option>
-    `).join('');
+    const priorityCard = document.getElementById('priority-select')?.closest('.card');
+    const isAdmin = this.currentUser?.role === 'admin' || this.currentUser?.role === 'atendente';
+
+    if (priorityCard) {
+      priorityCard.style.display = isAdmin ? '' : 'none';
+    }
+
+    if (isAdmin) {
+      const prioritySelect = document.getElementById('priority-select');
+      const priorities = ['critica', 'alta', 'media', 'baixa'];
+      const labels = { critica: 'Crítica', alta: 'Alta', media: 'Média', baixa: 'Baixa' };
+      prioritySelect.innerHTML = priorities.map(p => `
+        <option value="${p}" ${t.priority === p ? 'selected' : ''}>${labels[p]}</option>
+      `).join('');
+    }
   }
 
   updateTicketStatus(status) {
@@ -994,21 +1004,25 @@ class App {
   }
 
   createTicket() {
-    const subject = document.getElementById('form-subject').value;
-    const description = document.getElementById('form-description').value;
-    const category = document.getElementById('form-category').value;
+    const subject = document.getElementById('form-subject').value.trim();
+    const description = document.getElementById('form-description').value.trim();
+    const categoryId = document.getElementById('form-category').value;
     const priority = document.getElementById('form-priority').value;
 
-    if (subject && description && category) {
+    if (subject && description && categoryId) {
+      const cat = this.categories.find(c => c.id === categoryId);
+      const categoryName = cat ? cat.name : categoryId;
+
+      const nextNum = String(this.tickets.length + 1).padStart(3, '0');
       const newTicket = {
-        id: `CHM-${this.tickets.length + 1}`,
+        id: `CHM-${nextNum}`,
         subject,
         description,
-        category,
+        category: categoryName,
         priority,
         status: 'aberto',
-        channel: 'email',
-        client_name: 'Cliente',
+        channel: 'portal',
+        client_name: this.currentUser?.name || 'Cliente',
         assignee_name: 'Não atribuído',
         created_at: new Date().toISOString(),
         sla_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -1019,8 +1033,7 @@ class App {
 
       this.tickets.unshift(newTicket);
       this.closeModal();
-      this.renderDashboard();
-      this.navigateTo('dashboard');
+      this.navigateTo('tickets');
     }
   }
 
