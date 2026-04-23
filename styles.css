@@ -266,13 +266,12 @@ body {
 canvas {
   max-width: 100%;
   height: auto !important;
-  max-height: 280px;
 }
 
 /* Prevent canvas from growing */
 .charts-grid canvas {
   width: 100% !important;
-  height: 250px !important;
+  height: 350px !important;
 }
 
 .table-wrapper {

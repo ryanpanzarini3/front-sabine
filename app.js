@@ -29,6 +29,7 @@ class App {
     this.departments = departments;
     this.slaConfigs = slaConfigs;
     this.currentUser = null;
+    this.authListenersSetup = false;
 
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -57,11 +58,16 @@ class App {
   }
 
   renderInitial() {
+    console.log('renderInitial called. currentUser:', this.currentUser);
+    
     if (this.currentUser) {
+      console.log('User found, showing app');
       document.getElementById('auth-container')?.classList.add('hidden');
       document.getElementById('app')?.classList.remove('hidden');
+      this.setupEventListeners();
       this.render();
     } else {
+      console.log('No user found, showing login form');
       document.getElementById('auth-container')?.classList.remove('hidden');
       document.getElementById('app')?.classList.add('hidden');
       this.setupAuthListeners();
@@ -69,26 +75,44 @@ class App {
   }
 
   setupAuthListeners() {
+    if (this.authListenersSetup) {
+      console.log('Auth listeners already setup, skipping');
+      return;
+    }
+    
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
-    const modalClose = document.querySelector('.modal-close');
 
     if (loginForm) {
       loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        console.log('Login form submitted');
         this.handleLogin();
       });
+      console.log('Login form listener added');
     }
 
     if (registerForm) {
       registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        console.log('Register form submitted');
         this.handleRegister();
       });
+      console.log('Register form listener added');
     }
+    
+    this.authListenersSetup = true;
   }
 
   setupEventListeners() {
+    // Remove listeners antigos para evitar duplicatas
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      const newLink = link.cloneNode(true);
+      link.replaceWith(newLink);
+    });
+
+    // Adiciona novo listener aos nav-links
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -104,7 +128,6 @@ class App {
 
     this.updateNavLinkVisibility();
 
-   
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.getElementById('sidebar');
     if (menuToggle) {
@@ -112,12 +135,13 @@ class App {
         sidebar.classList.toggle('open');
       });
     }
+
     document.addEventListener('click', (e) => {
       const sidebar = document.getElementById('sidebar');
       const menuToggle = document.getElementById('menu-toggle');
       
       if (window.innerWidth <= 768) {
-        if (sidebar.classList.contains('open') && 
+        if (sidebar && menuToggle && sidebar.classList.contains('open') && 
             !sidebar.contains(e.target) && 
             !menuToggle.contains(e.target)) {
           sidebar.classList.remove('open');
@@ -125,33 +149,22 @@ class App {
       }
     });
 
-    document.getElementById('btn-new-ticket')?.addEventListener('click', () => {
-      this.showNewTicketModal();
-    });
+    // Usa event delegation para evitar listeners duplicados
+    const handleFilterChange = (selector, field) => {
+      const element = document.getElementById(selector);
+      if (element) {
+        element.addEventListener('input' in element || 'change' in element ? 'change' : 'input', (e) => {
+          if ('search' in this.filters) this.filters[field] = e.target.value;
+          this.ticketPageNum = 1;
+          this.renderTicketsPage();
+        });
+      }
+    };
 
-    document.getElementById('filter-search')?.addEventListener('input', (e) => {
-      this.filters.search = e.target.value;
-      this.ticketPageNum = 1;
-      this.renderTicketsPage();
-    });
-
-    document.getElementById('filter-status')?.addEventListener('change', (e) => {
-      this.filters.status = e.target.value;
-      this.ticketPageNum = 1;
-      this.renderTicketsPage();
-    });
-
-    document.getElementById('filter-priority')?.addEventListener('change', (e) => {
-      this.filters.priority = e.target.value;
-      this.ticketPageNum = 1;
-      this.renderTicketsPage();
-    });
-
-    document.getElementById('filter-category')?.addEventListener('change', (e) => {
-      this.filters.category = e.target.value;
-      this.ticketPageNum = 1;
-      this.renderTicketsPage();
-    });
+    handleFilterChange('filter-search', 'search');
+    handleFilterChange('filter-status', 'status');
+    handleFilterChange('filter-priority', 'priority');
+    handleFilterChange('filter-category', 'category');
 
     document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
       this.filters = { search: '', status: '', priority: '', category: '' };
@@ -179,8 +192,8 @@ class App {
       }
     });
 
-    document.getElementById('bell-btn')?.addEventListener('click', () => {
-      this.navigateTo('notifications');
+    document.getElementById('btn-new-ticket')?.addEventListener('click', () => {
+      this.showNewTicketModal();
     });
 
     document.getElementById('btn-mark-all-read')?.addEventListener('click', () => {
@@ -230,12 +243,18 @@ class App {
       this.handleLogout();
     });
 
-    document.getElementById('bell-btn')?.addEventListener('click', () => {
-      this.navigateTo('notifications');
-    });
+    const bellBtn = document.getElementById('bell-btn');
+    if (bellBtn) {
+      bellBtn.addEventListener('click', () => {
+        this.navigateTo('notifications');
+      });
+    }
 
     if (this.currentUser) {
-      document.getElementById('user-name').textContent = `👤 ${this.currentUser.name}`;
+      const userNameElement = document.getElementById('user-name');
+      if (userNameElement) {
+        userNameElement.textContent = `👤 ${this.currentUser.name}`;
+      }
     }
   }
 
@@ -350,13 +369,13 @@ class App {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
-              font: { size: 11 },
-              padding: 10,
+              font: { size: 12 },
+              padding: 15,
               usePointStyle: true,
               boxWidth: 12
             }
@@ -399,7 +418,7 @@ class App {
       options: {
         indexAxis: 'y',
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
@@ -410,12 +429,12 @@ class App {
             beginAtZero: true,
             ticks: {
               stepSize: 1,
-              font: { size: 10 }
+              font: { size: 11 }
             }
           },
           y: {
             ticks: {
-              font: { size: 10 }
+              font: { size: 11 }
             }
           }
         }
@@ -457,25 +476,25 @@ class App {
         }]
       },
       options: {
-        indexAxis: 'x',
+        indexAxis: 'y',
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
           }
         },
         scales: {
-          y: {
+          x: {
             beginAtZero: true,
             ticks: {
               stepSize: 1,
-              font: { size: 10 }
+              font: { size: 11 }
             }
           },
-          x: {
+          y: {
             ticks: {
-              font: { size: 9 }
+              font: { size: 12 }
             }
           }
         }
@@ -513,13 +532,13 @@ class App {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
-              font: { size: 11 },
-              padding: 10,
+              font: { size: 12 },
+              padding: 15,
               usePointStyle: true,
               boxWidth: 12
             }
@@ -1093,19 +1112,36 @@ class App {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
+    console.log('Attempting login with:', email);
+    
     const user = this.users.find(u => u.email === email && u.password === password);
 
     if (user) {
+      console.log('Login successful for user:', user.name);
       this.currentUser = user;
       localStorage.setItem('currentUser', JSON.stringify(user));
-      document.getElementById('app')?.classList.remove('hidden');
-      document.getElementById('auth-container')?.classList.add('hidden');
+      
+      // Hide login, show app
+      const appElement = document.getElementById('app');
+      const authContainer = document.getElementById('auth-container');
+      
+      if (appElement) {
+        appElement.classList.remove('hidden');
+        console.log('App element showed');
+      }
+      
+      if (authContainer) {
+        authContainer.classList.add('hidden');
+        console.log('Auth container hidden');
+      }
+      
       document.getElementById('login-form').reset();
-      this.setupEventListeners();
       this.updateNavLinkVisibility();
       this.render();
       this.addNotificationAlert('Bem-vindo!', `Olá ${user.name}`, 'info');
+      console.log('Login completed successfully');
     } else {
+      console.log('Login failed: user not found or invalid credentials');
       alert('Email ou senha incorretos!');
     }
   }

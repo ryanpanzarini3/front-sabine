@@ -11,7 +11,7 @@
 
 ### Slide de Abertura
 ```
-"Hoje vou apresentar SABINE, uma solução de HelpDesk 
+"Hoje vou apresentar HelpDesk, uma solução de HelpDesk 
 que desenvolvemos com foco em:
 
 ✅ Simplicidade e Intuitividade
