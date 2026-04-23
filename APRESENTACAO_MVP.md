@@ -1,4 +1,4 @@
-# 🎫 SABINE - HelpDesk Management System
+# 🎫 HelpDesk - Management System
 ## MVP - Apresentação Completa
 
 ---
@@ -18,7 +18,7 @@
 
 ## 🎯 Visão Geral
 
-**SABINE** é um sistema completo de gerenciamento de tickets (chamados) para suporte técnico, desenvolvido como um MVP (Mínimo Produto Viável) com foco em:
+**HelpDesk** é um sistema completo de gerenciamento de tickets (chamados) para suporte técnico, desenvolvido como um MVP (Mínimo Produto Viável) com foco em:
 
 ✅ **UI Responsiva** - Funciona perfeitamente em desktop, tablet e mobile  
 ✅ **Dashboard Analytics** - Visualização em tempo real das métricas  
@@ -268,9 +268,9 @@ Cada ticket contém:
 - Histórico de mensagens
 
 #### 6 Usuários
-- Admin (Fernanda Costa)
-- Atendentes (Ana Lima, Carlos Souza)
-- Clientes (João Silva, Maria Oliveira, Pedro Alves)
+- Admin (Ryan Panzarini)
+- Atendentes (Lucas Eduardo, Matheus Leonel)
+- Clientes (Guilherme Rafael, Gustavo Ramalho)
 
 #### Configurações
 - 5 Categorias
@@ -390,7 +390,7 @@ Vite - Build tool moderno
 ## 🔒 Segurança Fictícia (MVP)
 
 Para apresentação, incluímos:
-- ✅ Usuário logado (Fernanda Costa - Admin)
+- ✅ Usuário logado (Ryan Panzarini Paes - Admin)
 - ✅ Controle de interface baseado em role
 - ✅ Dados isolados por sessão
 - ✅ Validação básica de formulários
@@ -449,10 +449,10 @@ npm run build
 ### Usuário Logado (Padrão)
 ```json
 {
-  "name": "Fernanda Costa",
+  "name": "Ryan Panzarini",
   "role": "admin",
   "department": "TI",
-  "email": "fernanda@empresa.com"
+  "email": "dev.panzarini@gmail.com"
 }
 ```
 
@@ -599,6 +599,6 @@ Projeto desenvolvido como MVP interno.
 
 ---
 
-### 🎉 Obrigado por usar SABINE!
+### 🎉 Obrigado por usar HelpDesk!
 
 Para dúvidas ou sugestões, consulte a documentação técnica ou entre em contato com o time de desenvolvimento.
