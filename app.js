@@ -1,10 +1,6 @@
-// ============================================
-// APP STATE MANAGEMENT
-// ============================================
 
 class App {
   constructor() {
-    // State
     this.tickets = [...initialTickets];
     this.notifications = [...initialNotifications];
     this.users = users;
@@ -13,13 +9,12 @@ class App {
     this.slaConfigs = slaConfigs;
     this.currentUser = currentUser;
 
-    // Local state
+
     this.currentPage = 'dashboard';
     this.currentTicket = null;
     this.ticketPageNum = 1;
     this.ticketsPerPage = 8;
 
-    // Filters
     this.filters = {
       search: '',
       status: '',
@@ -27,34 +22,26 @@ class App {
       category: ''
     };
 
-    // Chart instances
     this.priorityChartInstance = null;
     this.statusChartInstance = null;
     this.categoryChartInstance = null;
     this.slaChartInstance = null;
 
-    // Init
     this.setupEventListeners();
     this.render();
   }
 
-  // ============================================
-  // EVENT LISTENERS SETUP
-  // ============================================
-
   setupEventListeners() {
-    // Navigation
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const page = link.dataset.page;
         this.navigateTo(page);
-        // Close sidebar on mobile after navigation
         this.closeSidebar();
       });
     });
 
-    // Menu toggle
+   
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.getElementById('sidebar');
     if (menuToggle) {
@@ -62,8 +49,6 @@ class App {
         sidebar.classList.toggle('open');
       });
     }
-
-    // Close sidebar when clicking outside (mobile)
     document.addEventListener('click', (e) => {
       const sidebar = document.getElementById('sidebar');
       const menuToggle = document.getElementById('menu-toggle');
@@ -77,12 +62,10 @@ class App {
       }
     });
 
-    // Dashboard
     document.getElementById('btn-new-ticket')?.addEventListener('click', () => {
       this.showNewTicketModal();
     });
 
-    // Tickets page
     document.getElementById('filter-search')?.addEventListener('input', (e) => {
       this.filters.search = e.target.value;
       this.ticketPageNum = 1;
@@ -117,7 +100,6 @@ class App {
       this.renderTicketsPage();
     });
 
-    // Pagination
     document.getElementById('btn-prev-page')?.addEventListener('click', () => {
       if (this.ticketPageNum > 1) {
         this.ticketPageNum--;
@@ -134,7 +116,6 @@ class App {
       }
     });
 
-    // Notifications
     document.getElementById('bell-btn')?.addEventListener('click', () => {
       this.navigateTo('notifications');
     });
@@ -145,7 +126,6 @@ class App {
       this.renderNotificationsPage();
     });
 
-    // Modal close
     document.querySelector('.modal-close')?.addEventListener('click', () => {
       this.closeModal();
     });
@@ -156,27 +136,22 @@ class App {
       }
     });
 
-    // Users page
     document.getElementById('btn-new-user')?.addEventListener('click', () => {
       this.showNewUserModal();
     });
 
-    // Categories page
     document.getElementById('btn-new-category')?.addEventListener('click', () => {
       this.showNewCategoryModal();
     });
 
-    // Departments page
     document.getElementById('btn-new-department')?.addEventListener('click', () => {
       this.showNewDepartmentModal();
     });
 
-    // Back button
     document.getElementById('btn-back')?.addEventListener('click', () => {
       this.navigateTo('tickets');
     });
 
-    // Ticket detail
     document.getElementById('btn-send-message')?.addEventListener('click', () => {
       this.sendMessage();
     });
@@ -189,14 +164,8 @@ class App {
     });
   }
 
-  // ============================================
-  // NAVIGATION & ROUTING
-  // ============================================
-
   navigateTo(page) {
     this.currentPage = page;
-
-    // Update nav links
     document.querySelectorAll('.nav-link').forEach(link => {
       link.classList.remove('active');
       if (link.dataset.page === page) {
@@ -204,10 +173,8 @@ class App {
       }
     });
 
-    // Close sidebar mobile
     document.getElementById('sidebar')?.classList.remove('open');
 
-    // Update pages
     this.render();
   }
 
@@ -244,17 +211,12 @@ class App {
     this.updateUnreadBadge();
   }
 
-  // ============================================
-  // DASHBOARD
-  // ============================================
-
   renderDashboard() {
     const page = document.getElementById('dashboard-page');
     if (!page) return;
 
     page.classList.add('active');
 
-    // Update metrics
     const open = this.tickets.filter(t => t.status === 'aberto').length;
     const progress = this.tickets.filter(t => t.status === 'em_andamento').length;
     const closed = this.tickets.filter(t => t.status === 'resolvido' || t.status === 'fechado').length;
@@ -265,13 +227,10 @@ class App {
     document.getElementById('metric-closed').textContent = closed;
     document.getElementById('metric-sla-violated').textContent = slaViolated;
 
-    // Render charts
     this.renderPriorityChart();
     this.renderStatusChart();
     this.renderCategoryChart();
     this.renderSLAChart();
-
-    // Latest tickets
     const latestHTML = this.tickets.slice(0, 5).map(t => `
       <tr>
         <td>${t.id}</td>
@@ -289,13 +248,10 @@ class App {
   renderPriorityChart() {
     const ctx = document.getElementById('priority-chart');
     if (!ctx) return;
-
-    // Destroy existing chart if exists
     if (this.priorityChartInstance) {
       this.priorityChartInstance.destroy();
     }
 
-    // Count tickets by priority
     const priorities = {};
     this.tickets.forEach(t => {
       priorities[t.priority] = (priorities[t.priority] || 0) + 1;
@@ -304,7 +260,6 @@ class App {
     const labels = Object.keys(priorities);
     const data = Object.values(priorities);
 
-    // Color mapping
     const colorMap = {
       'baixa': '#10b981',
       'média': '#f59e0b',
@@ -346,13 +301,11 @@ class App {
   renderStatusChart() {
     const ctx = document.getElementById('status-chart');
     if (!ctx) return;
-
-    // Destroy existing chart if exists
     if (this.statusChartInstance) {
       this.statusChartInstance.destroy();
     }
 
-    // Count tickets by status
+
     const statuses = {};
     this.tickets.forEach(t => {
       statuses[t.status] = (statuses[t.status] || 0) + 1;
@@ -361,7 +314,6 @@ class App {
     const labels = Object.keys(statuses);
     const data = Object.values(statuses);
 
-    // Color mapping
     const colorMap = {
       'aberto': '#3b82f6',
       'em_andamento': '#f59e0b',
@@ -415,13 +367,10 @@ class App {
   renderCategoryChart() {
     const ctx = document.getElementById('category-chart');
     if (!ctx) return;
-
-    // Destroy existing chart if exists
     if (this.categoryChartInstance) {
       this.categoryChartInstance.destroy();
     }
 
-    // Count tickets by category
     const categories = {};
     this.tickets.forEach(t => {
       categories[t.category] = (categories[t.category] || 0) + 1;
@@ -478,13 +427,9 @@ class App {
   renderSLAChart() {
     const ctx = document.getElementById('sla-chart');
     if (!ctx) return;
-
-    // Destroy existing chart if exists
     if (this.slaChartInstance) {
       this.slaChartInstance.destroy();
     }
-
-    // Count tickets by SLA status
     const slaStatuses = {
       'ok': 0,
       'alerta': 0,
@@ -525,10 +470,6 @@ class App {
     });
   }
 
-  // ============================================
-  // TICKETS PAGE
-  // ============================================
-
   renderTicketsPage() {
     const page = document.getElementById('tickets-page');
     if (!page) return;
@@ -540,10 +481,9 @@ class App {
     const end = start + this.ticketsPerPage;
     const paged = filtered.slice(start, end);
 
-    // Render table
     const tbody = document.getElementById('tickets-tbody');
     tbody.innerHTML = paged.map(t => `
-      <tr onclick="app.viewTicket('${t.id}')">
+      <tr onclick="app.viewTicket('${t.id}')">  
         <td>${t.id}</td>
         <td>${t.subject}</td>
         <td>${t.client_name}</td>
@@ -554,7 +494,6 @@ class App {
       </tr>
     `).join('');
 
-    // Render pagination
     const totalPages = Math.ceil(filtered.length / this.ticketsPerPage);
     const pageNumsHTML = Array.from({ length: totalPages }, (_, i) => i + 1).map(p => `
       <button class="${p === this.ticketPageNum ? 'active' : ''}" onclick="app.goToPage(${p})">${p}</button>
@@ -592,19 +531,12 @@ class App {
     }
   }
 
-  // ============================================
-  // TICKET DETAIL
-  // ============================================
-
   renderTicketDetail() {
     const page = document.getElementById('ticket-detail-page');
     if (!page || !this.currentTicket) return;
 
     page.classList.add('active');
-
     const t = this.currentTicket;
-
-    // Info
     const infoHTML = `
       <div class="ticket-info-field">
         <p>Cliente</p>
@@ -629,8 +561,6 @@ class App {
     `;
     document.getElementById('ticket-info').innerHTML = infoHTML;
     document.getElementById('ticket-description').textContent = t.description;
-
-    // Messages
     const messagesHTML = (t.messages || []).map(m => `
       <div class="message ${m.type}">
         <div class="message-type">${m.type === 'public' ? '👤 Público' : '🔒 Interno'}</div>
@@ -639,8 +569,6 @@ class App {
       </div>
     `).join('');
     document.getElementById('messages-list').innerHTML = messagesHTML;
-
-    // SLA
     const slaStatus = this.getSLAStatus(t.sla_deadline);
     const slaHTML = `
       <div class="ticket-info-field">
@@ -655,8 +583,6 @@ class App {
       </div>
     `;
     document.getElementById('sla-info').innerHTML = slaHTML;
-
-    // Status buttons
     const statuses = ['aberto', 'em_andamento', 'resolvido', 'fechado'];
     const statusHTML = statuses.map(s => `
       <button class="btn ${t.status === s ? 'btn-primary' : 'btn-secondary'}" 
@@ -665,8 +591,6 @@ class App {
       </button>
     `).join('');
     document.getElementById('status-buttons').innerHTML = statusHTML;
-
-    // Priority select
     const prioritySelect = document.getElementById('priority-select');
     const priorities = ['critica', 'alta', 'media', 'baixa'];
     prioritySelect.innerHTML = priorities.map(p => `
@@ -702,10 +626,6 @@ class App {
     messageInput.value = '';
     this.renderTicketDetail();
   }
-
-  // ============================================
-  // USERS PAGE
-  // ============================================
 
   renderUsersPage() {
     const page = document.getElementById('users-page');
@@ -778,10 +698,6 @@ class App {
     }
   }
 
-  // ============================================
-  // CATEGORIES PAGE
-  // ============================================
-
   renderCategoriesPage() {
     const page = document.getElementById('categories-page');
     if (!page) return;
@@ -845,10 +761,6 @@ class App {
     }
   }
 
-  // ============================================
-  // SLA PAGE
-  // ============================================
-
   renderSLAPage() {
     const page = document.getElementById('sla-page');
     if (!page) return;
@@ -865,10 +777,6 @@ class App {
 
     document.getElementById('sla-list').innerHTML = html;
   }
-
-  // ============================================
-  // DEPARTMENTS PAGE
-  // ============================================
 
   renderDepartmentsPage() {
     const page = document.getElementById('departments-page');
@@ -930,10 +838,6 @@ class App {
     }
   }
 
-  // ============================================
-  // NOTIFICATIONS PAGE
-  // ============================================
-
   renderNotificationsPage() {
     const page = document.getElementById('notifications-page');
     if (!page) return;
@@ -964,10 +868,6 @@ class App {
       }
     }
   }
-
-  // ============================================
-  // MODALS
-  // ============================================
 
   openModal(html) {
     const modal = document.getElementById('modal');
@@ -1045,10 +945,6 @@ class App {
       this.navigateTo('dashboard');
     }
   }
-
-  // ============================================
-  // UTILITIES
-  // ============================================
 
   getPriorityBadge(priority) {
     const colors = {
@@ -1130,11 +1026,5 @@ class App {
   }
 }
 
-// ============================================
-// INITIALIZE APP
-// ============================================
-
 let app;
-document.addEventListener('DOMContentLoaded', () => {
-  app = new App();
-});
+document.addEventListener('DOMContentLoaded', () => { app = new App(); });
