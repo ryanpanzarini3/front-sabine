@@ -1,5 +1,3 @@
-// Mock Data - Global Variables for Vanilla JS
-
 const users = [
   { id: 'user-1', name: 'Ana Lima', email: 'ana@empresa.com', role: 'atendente', department: 'Suporte Técnico', status: 'active' },
   { id: 'user-2', name: 'Carlos Souza', email: 'carlos@empresa.com', role: 'atendente', department: 'Suporte Técnico', status: 'active' },

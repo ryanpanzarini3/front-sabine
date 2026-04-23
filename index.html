@@ -8,7 +8,6 @@
 </head>
 <body>
   <div id="app">
-    <!-- Sidebar -->
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
         <h2>🎫 HelpDesk</h2>
@@ -38,9 +37,7 @@
       </nav>
     </aside>
 
-    <!-- Main -->
     <div class="main-container">
-      <!-- Header -->
       <header class="header">
         <button id="menu-toggle" class="menu-toggle">☰</button>
         <div class="header-center">
@@ -59,7 +56,6 @@
 
       <!-- Page Content -->
       <main class="page-content">
-        <!-- DASHBOARD PAGE -->
         <div id="dashboard-page" class="page active">
           <h1>Dashboard</h1>
           
@@ -119,7 +115,6 @@
           </div>
         </div>
 
-        <!-- TICKETS PAGE -->
         <div id="tickets-page" class="page">
           <div class="page-header">
             <h1>Chamados</h1>
@@ -179,14 +174,12 @@
           </div>
         </div>
 
-        <!-- TICKET DETAIL PAGE -->
         <div id="ticket-detail-page" class="page">
           <div class="detail-header">
             <button id="btn-back" class="btn btn-secondary">← Voltar</button>
           </div>
 
           <div class="detail-grid">
-            <!-- LEFT: Info -->
             <div class="detail-left">
               <div class="card">
                 <h3>Informações</h3>
@@ -198,7 +191,6 @@
               </div>
             </div>
 
-            <!-- CENTER: Messages -->
             <div class="detail-center">
               <div class="card messages-box">
                 <h3>Histórico</h3>
@@ -216,7 +208,6 @@
               </div>
             </div>
 
-            <!-- RIGHT: Actions -->
             <div class="detail-right">
               <div class="card">
                 <h3>SLA Status</h3>
@@ -234,7 +225,6 @@
           </div>
         </div>
 
-        <!-- USERS PAGE -->
         <div id="users-page" class="page">
           <div class="page-header">
             <h1>Usuários</h1>
@@ -258,7 +248,6 @@
           </div>
         </div>
 
-        <!-- CATEGORIES PAGE -->
         <div id="categories-page" class="page">
           <div class="page-header">
             <h1>Categorias</h1>
@@ -279,14 +268,12 @@
           </div>
         </div>
 
-        <!-- SLA PAGE -->
         <div id="sla-page" class="page">
           <h1>Configurações de SLA</h1>
 
           <div class="sla-grid" id="sla-list"></div>
         </div>
 
-        <!-- DEPARTMENTS PAGE -->
         <div id="departments-page" class="page">
           <div class="page-header">
             <h1>Departamentos</h1>
@@ -308,7 +295,6 @@
           </div>
         </div>
 
-        <!-- NOTIFICATIONS PAGE -->
         <div id="notifications-page" class="page">
           <h1>Notificações</h1>
 
@@ -322,8 +308,7 @@
     </div>
   </div>
 
-  <!-- Modal for forms -->
-  <div id="modal" class="modal hidden">
+    <div id="modal" class="modal hidden">
     <div class="modal-content">
       <button class="modal-close">✕</button>
       <div id="modal-body"></div>
