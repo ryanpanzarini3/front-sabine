@@ -49,7 +49,8 @@
             <span id="unread-badge" class="badge">0</span>
           </div>
           <div class="user-profile">
-            <span>👤 Ryan Panzarini</span>
+            <span id="user-name">👤 Usuário</span>
+            <button id="btn-logout" class="btn btn-secondary" style="margin-left: 1rem; padding: 0.4rem 0.8rem; font-size: 0.9rem;">Sair</button>
           </div>
         </div>
       </header>
@@ -305,6 +306,64 @@
           <div id="notifications-list" class="notifications-list"></div>
         </div>
       </main>
+    </div>
+  </div>
+
+  <div id="auth-container" class="auth-container">
+    <div id="login-page" class="auth-page active">
+      <div class="auth-card">
+        <h1>🎫 HelpDesk</h1>
+        <h2>Entrar</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="seu@email.com" required>
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="login-password" placeholder="Sua senha" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar →</button>
+        </form>
+        <p class="auth-link">Não tem cuenta? <a href="#" onclick="app.switchAuthPage('register')">Criar conta</a></p>
+        <div class="demo-credentials">
+          <p>📋 Credenciais de teste:</p>
+          <p>👨‍💼 Admin: ryanpanzarini@empresa.com / admin123</p>
+          <p>👩‍💼 Atendente: guilhermerafa@empresa.com / 123456</p>
+          <p>👥 Cliente: luquinhadelas@cliente.com / 123456</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="register-page" class="auth-page">
+      <div class="auth-card">
+        <h1>🎫 HelpDesk</h1>
+        <h2>Criar Conta</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="register-name" placeholder="Seu nome completo" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="register-email" placeholder="seu@email.com" required>
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="register-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label>Tipo de Usuário</label>
+            <select id="register-role" required>
+              <option value="">Selecione...</option>
+              <option value="cliente">Cliente</option>
+              <option value="atendente">Atendente</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Criar Conta →</button>
+        </form>
+        <p class="auth-link">Já tem conta? <a href="#" onclick="app.switchAuthPage('login')">Fazer login</a></p>
+      </div>
     </div>
   </div>
 

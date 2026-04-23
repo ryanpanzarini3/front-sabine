@@ -1,10 +1,10 @@
 const users = [
-  { id: 'user-1', name: 'Ana Lima', email: 'ana@empresa.com', role: 'atendente', department: 'Suporte Técnico', status: 'active' },
-  { id: 'user-2', name: 'Carlos Souza', email: 'carlos@empresa.com', role: 'atendente', department: 'Suporte Técnico', status: 'active' },
-  { id: 'user-3', name: 'Fernanda Costa', email: 'fernanda@empresa.com', role: 'admin', department: 'TI', status: 'active' },
-  { id: 'user-4', name: 'João Silva', email: 'joao@cliente.com', role: 'cliente', department: 'Externo', status: 'active' },
-  { id: 'user-5', name: 'Maria Oliveira', email: 'maria@cliente.com', role: 'cliente', department: 'Externo', status: 'active' },
-  { id: 'user-6', name: 'Pedro Alves', email: 'pedro@cliente.com', role: 'cliente', department: 'Externo', status: 'inactive' },
+  { id: 'user-1', name: 'Guilherme Rafaelo', email: 'guilhermerafa@empresa.com', password: '123456', role: 'atendente', department: 'Suporte Técnico', status: 'active' },
+  { id: 'user-2', name: 'Carlos Souza', email: 'carlos@empresa.com', password: '123456', role: 'atendente', department: 'Suporte Técnico', status: 'active' },
+  { id: 'user-3', name: 'Ryan Panzarini', email: 'ryanpanzarini@empresa.com', password: 'admin123', role: 'admin', department: 'TI', status: 'active' },
+  { id: 'user-4', name: 'Luquinha Delas', email: 'luquinhadelas@cliente.com', password: '123456', role: 'cliente', department: 'Externo', status: 'active' },
+  { id: 'user-5', name: 'Maria Oliveira', email: 'maria@cliente.com', password: '123456', role: 'cliente', department: 'Externo', status: 'active' },
+  { id: 'user-6', name: 'Pedro Alves', email: 'pedro@cliente.com', password: '123456', role: 'cliente', department: 'Externo', status: 'inactive' },
 ];
 
 const departments = [
