@@ -27,6 +27,12 @@ class App {
       category: ''
     };
 
+    // Chart instances
+    this.priorityChartInstance = null;
+    this.statusChartInstance = null;
+    this.categoryChartInstance = null;
+    this.slaChartInstance = null;
+
     // Init
     this.setupEventListeners();
     this.render();
@@ -259,6 +265,12 @@ class App {
     document.getElementById('metric-closed').textContent = closed;
     document.getElementById('metric-sla-violated').textContent = slaViolated;
 
+    // Render charts
+    this.renderPriorityChart();
+    this.renderStatusChart();
+    this.renderCategoryChart();
+    this.renderSLAChart();
+
     // Latest tickets
     const latestHTML = this.tickets.slice(0, 5).map(t => `
       <tr>
@@ -272,6 +284,245 @@ class App {
     `).join('');
 
     document.getElementById('latest-tickets').innerHTML = latestHTML;
+  }
+
+  renderPriorityChart() {
+    const ctx = document.getElementById('priority-chart');
+    if (!ctx) return;
+
+    // Destroy existing chart if exists
+    if (this.priorityChartInstance) {
+      this.priorityChartInstance.destroy();
+    }
+
+    // Count tickets by priority
+    const priorities = {};
+    this.tickets.forEach(t => {
+      priorities[t.priority] = (priorities[t.priority] || 0) + 1;
+    });
+
+    const labels = Object.keys(priorities);
+    const data = Object.values(priorities);
+
+    // Color mapping
+    const colorMap = {
+      'baixa': '#10b981',
+      'média': '#f59e0b',
+      'alta': '#dc2626',
+      'crítica': '#991b1b'
+    };
+
+    const colors = labels.map(label => colorMap[label] || '#8b5cf6');
+
+    this.priorityChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+        datasets: [{
+          data: data,
+          backgroundColor: colors,
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 11 },
+              padding: 10,
+              usePointStyle: true,
+              boxWidth: 12
+            }
+          }
+        }
+      }
+    });
+  }
+
+  renderStatusChart() {
+    const ctx = document.getElementById('status-chart');
+    if (!ctx) return;
+
+    // Destroy existing chart if exists
+    if (this.statusChartInstance) {
+      this.statusChartInstance.destroy();
+    }
+
+    // Count tickets by status
+    const statuses = {};
+    this.tickets.forEach(t => {
+      statuses[t.status] = (statuses[t.status] || 0) + 1;
+    });
+
+    const labels = Object.keys(statuses);
+    const data = Object.values(statuses);
+
+    // Color mapping
+    const colorMap = {
+      'aberto': '#3b82f6',
+      'em_andamento': '#f59e0b',
+      'resolvido': '#10b981',
+      'fechado': '#6b7280',
+      'aguardando': '#8b5cf6'
+    };
+
+    const colors = labels.map(label => colorMap[label] || '#6b7280');
+
+    this.statusChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels.map(l => l.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')),
+        datasets: [{
+          label: 'Quantidade',
+          data: data,
+          backgroundColor: colors,
+          borderColor: colors,
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              font: { size: 10 }
+            }
+          },
+          y: {
+            ticks: {
+              font: { size: 10 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  renderCategoryChart() {
+    const ctx = document.getElementById('category-chart');
+    if (!ctx) return;
+
+    // Destroy existing chart if exists
+    if (this.categoryChartInstance) {
+      this.categoryChartInstance.destroy();
+    }
+
+    // Count tickets by category
+    const categories = {};
+    this.tickets.forEach(t => {
+      categories[t.category] = (categories[t.category] || 0) + 1;
+    });
+
+    const labels = Object.keys(categories);
+    const data = Object.values(categories);
+
+    const colors = [
+      '#3b82f6', '#10b981', '#f59e0b', '#dc2626', '#8b5cf6',
+      '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#6366f1'
+    ];
+
+    this.categoryChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Quantidade',
+          data: data,
+          backgroundColor: colors.slice(0, labels.length),
+          borderColor: colors.slice(0, labels.length),
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              font: { size: 10 }
+            }
+          },
+          x: {
+            ticks: {
+              font: { size: 9 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  renderSLAChart() {
+    const ctx = document.getElementById('sla-chart');
+    if (!ctx) return;
+
+    // Destroy existing chart if exists
+    if (this.slaChartInstance) {
+      this.slaChartInstance.destroy();
+    }
+
+    // Count tickets by SLA status
+    const slaStatuses = {
+      'ok': 0,
+      'alerta': 0,
+      'violado': 0
+    };
+
+    this.tickets.forEach(t => {
+      const status = this.getSLAStatus(t.sla_deadline);
+      slaStatuses[status]++;
+    });
+
+    this.slaChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['No Prazo', 'Atenção', 'Violado'],
+        datasets: [{
+          data: [slaStatuses.ok, slaStatuses.alerta, slaStatuses.violado],
+          backgroundColor: ['#10b981', '#f59e0b', '#dc2626'],
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 11 },
+              padding: 10,
+              usePointStyle: true,
+              boxWidth: 12
+            }
+          }
+        }
+      }
+    });
   }
 
   // ============================================
